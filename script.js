@@ -49,26 +49,57 @@ let rsaKeys = {
     publicKey: '',
     privateKey: ''
 };
-// Real-time validation for forms
 document.addEventListener('DOMContentLoaded', () => {
+    // Get form elements
+    const nameField = document.getElementById('register-name');
     const emailField = document.getElementById('register-email');
     const passwordField = document.getElementById('register-password');
     const confirmPasswordField = document.getElementById('register-confirm-password');
-    const validationMessages = {
-        email: document.getElementById('email-validation'),
-        password: document.getElementById('password-validation'),
-        confirmPassword: document.getElementById('confirm-password-validation'),
-    };
+    const registerForm = document.getElementById('register-form');
 
-    // Validate email format
-    emailField?.addEventListener('input', () => {
-        const email = emailField.value.trim();
-        const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        validationMessages.email.textContent = isValidEmail ? '' : 'Invalid email format';
+    // Create validation messages
+    const nameValidationMessage = document.createElement('small');
+    const emailValidationMessage = document.createElement('small');
+    const passwordValidationMessage = document.createElement('small');
+    const confirmPasswordValidationMessage = document.createElement('small');
+
+    nameValidationMessage.classList.add('text-red-500', 'block', 'mt-1');
+    emailValidationMessage.classList.add('text-red-500', 'block', 'mt-1');
+    passwordValidationMessage.classList.add('text-red-500', 'block', 'mt-1');
+    confirmPasswordValidationMessage.classList.add('text-red-500', 'block', 'mt-1');
+
+    nameField.parentNode.appendChild(nameValidationMessage);
+    emailField.parentNode.appendChild(emailValidationMessage);
+    passwordField.parentNode.appendChild(passwordValidationMessage);
+    confirmPasswordField.parentNode.appendChild(confirmPasswordValidationMessage);
+
+    // Real-time name validation
+    nameField.addEventListener('input', () => {
+        const name = nameField.value.trim();
+        if (name === '') {
+            nameValidationMessage.textContent = 'Name is required';
+        } else if (name.length < 3) {
+            nameValidationMessage.textContent = 'Name must be at least 3 characters long';
+        } else {
+            nameValidationMessage.textContent = '';
+        }
     });
 
-    // Validate password strength
-    passwordField?.addEventListener('input', () => {
+    // Real-time email validation
+    emailField.addEventListener('input', () => {
+        const email = emailField.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email === '') {
+            emailValidationMessage.textContent = 'Email is required';
+        } else if (!emailRegex.test(email)) {
+            emailValidationMessage.textContent = 'Invalid email format';
+        } else {
+            emailValidationMessage.textContent = '';
+        }
+    });
+
+    // Real-time password validation
+    passwordField.addEventListener('input', () => {
         const password = passwordField.value;
         const hasLength = password.length >= 8;
         const hasUppercase = /[A-Z]/.test(password);
@@ -77,27 +108,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
         if (!hasLength) {
-            validationMessages.password.textContent = 'Password must be at least 8 characters long';
+            passwordValidationMessage.textContent = 'Password must be at least 8 characters long';
         } else if (!hasUppercase) {
-            validationMessages.password.textContent = 'Password must include an uppercase letter';
+            passwordValidationMessage.textContent = 'Password must include an uppercase letter';
         } else if (!hasLowercase) {
-            validationMessages.password.textContent = 'Password must include a lowercase letter';
+            passwordValidationMessage.textContent = 'Password must include a lowercase letter';
         } else if (!hasNumber) {
-            validationMessages.password.textContent = 'Password must include a number';
+            passwordValidationMessage.textContent = 'Password must include a number';
         } else if (!hasSpecial) {
-            validationMessages.password.textContent = 'Password must include a special character';
+            passwordValidationMessage.textContent = 'Password must include a special character';
         } else {
-            validationMessages.password.textContent = '';
+            passwordValidationMessage.textContent = '';
         }
     });
 
-    // Validate password confirmation
-    confirmPasswordField?.addEventListener('input', () => {
+    // Real-time confirm password validation
+    confirmPasswordField.addEventListener('input', () => {
         const password = passwordField.value;
         const confirmPassword = confirmPasswordField.value;
 
-        validationMessages.confirmPassword.textContent =
-            password === confirmPassword ? '' : 'Passwords do not match';
+        if (confirmPassword === '') {
+            confirmPasswordValidationMessage.textContent = 'Please confirm your password';
+        } else if (password !== confirmPassword) {
+            confirmPasswordValidationMessage.textContent = 'Passwords do not match';
+        } else {
+            confirmPasswordValidationMessage.textContent = '';
+        }
+    });
+
+    // Final form validation on submit
+    registerForm.addEventListener('submit', (e) => {
+        const name = nameField.value.trim();
+        const email = emailField.value.trim();
+        const password = passwordField.value;
+        const confirmPassword = confirmPasswordField.value;
+
+        if (name === '' || email === '' || password === '' || confirmPassword === '' ||
+            nameValidationMessage.textContent || emailValidationMessage.textContent ||
+            passwordValidationMessage.textContent || confirmPasswordValidationMessage.textContent) {
+            e.preventDefault(); // Prevent form submission
+            alert('Please fix the errors in the form before submitting');
+        }
     });
 });
 // Toggle password visibility
