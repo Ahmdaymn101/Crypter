@@ -50,6 +50,25 @@ let rsaKeys = {
     privateKey: ''
 };
 
+// Toggle password visibility
+passwordToggles.forEach(toggle => {
+    toggle.addEventListener('click', function () {
+        const inputId = this.dataset.target;
+        const input = document.getElementById(inputId);
+        const icon = this.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+});
+
 // Initialize the app
 function init() {
     // Check if user is already logged in
@@ -397,6 +416,15 @@ function encryptWithAES() {
     
     // Save to history
     addToHistory('AES', text, result, key.toString());
+
+    // Save to user's encryption history
+    if (currentUser) {
+        const userIndex = users.findIndex(user => user.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex].encryptionHistory.push({ type: 'AES', original: text, result, key: key.toString(), date: new Date().toISOString() });
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+    }
 }
 
 // Decrypt text with AES
@@ -426,6 +454,15 @@ function decryptWithAES() {
         
         // Save to history
         addToHistory('AES Decrypt', encryptedText, decrypted.toString(CryptoJS.enc.Utf8));
+
+        // Save to user's decryption history
+        if (currentUser) {
+            const userIndex = users.findIndex(user => user.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex].decryptionHistory.push({ type: 'AES Decrypt', original: encryptedText, result: decrypted.toString(CryptoJS.enc.Utf8), date: new Date().toISOString() });
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+        }
     } catch (error) {
         showToast('Decryption failed! Invalid key or text.', true);
         console.error(error);
@@ -456,6 +493,15 @@ function encryptWithRSA() {
     
     // Save to history
     addToHistory('RSA', text, encrypted);
+
+    // Save to user's encryption history
+    if (currentUser) {
+        const userIndex = users.findIndex(user => user.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex].encryptionHistory.push({ type: 'RSA', original: text, result: encrypted, date: new Date().toISOString() });
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+    }
 }
 
 // Decrypt text with RSA
@@ -482,6 +528,15 @@ function decryptWithRSA() {
     
     // Save to history
     addToHistory('RSA Decrypt', encryptedText, decrypted);
+
+    // Save to user's decryption history
+    if (currentUser) {
+        const userIndex = users.findIndex(user => user.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex].decryptionHistory.push({ type: 'RSA Decrypt', original: encryptedText, result: decrypted, date: new Date().toISOString() });
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+    }
 }
 
 // Add operation to history
