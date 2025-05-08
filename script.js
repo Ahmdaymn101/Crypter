@@ -12,7 +12,7 @@ const changePasswordModal = document.getElementById('change-password-modal');
 const closeChangePassword = document.getElementById('close-change-password');
 const cancelChangePassword = document.getElementById('cancel-change-password');
 const toast = document.getElementById('toast');
-const passwordToggles = document.querySelectorAll('.toggle-password');
+const passwordToggles = document.querySelectorAll('.password-toggle');
 const toastMessage = document.getElementById('toast-message');
 const closeToast = document.getElementById('close-toast');
 
