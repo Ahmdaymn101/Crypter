@@ -53,7 +53,7 @@ let rsaKeys = {
 // Toggle password visibility
 passwordToggles.forEach(toggle => {
     toggle.addEventListener('click', function () {
-        const inputId = this.getAttribute('data-target');
+        const inputId = this.id.replace('toggle-', '');
         const input = document.getElementById(inputId);
         const icon = this.querySelector('i');
 
