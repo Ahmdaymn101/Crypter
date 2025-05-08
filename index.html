@@ -4,129 +4,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypter | Secure Text Encryption</title>
+    <title>Crypty | Secure Authentication & Encryption</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="text-gray-100 flex items-center justify-center p-4">
-    <div id="particles"></div>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-4xl">
+        <!-- Particles Background -->
+        <div id="particles"></div>
 
-    <div class="auth-container rounded-xl p-8 w-full max-w-md relative overflow-hidden">
-        <div class="text-center mb-8">
-            <div class="flex items-center justify-center mb-4">
-                <i class="fas fa-lock text-4xl mr-2"
-                    style="background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent;"></i>
-                <h1 class="text-3xl font-bold logo-text">Crypter</h1>
-            </div>
-            <p class="text-gray-400">Secure text encryption & decryption</p>
-        </div>
-
-        <!-- Login Form -->
-        <div id="login-form">
-            <div class="mb-6">
-                <label for="login-email" class="block text-sm font-medium mb-2">Email</label>
-                <div class="relative">
-                    <input type="email" id="login-email"
-                        class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="your@email.com">
-                    <i class="fas fa-envelope absolute right-3 top-3.5 text-gray-500"></i>
+        <!-- Main App Container -->
+        <div id="app" class="card-glass shadow-2xl rounded-xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 p-6 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-indigo-900 p-3 rounded-full">
+                        <i class="fas fa-lock text-indigo-400 text-xl"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold logo-text">Crypty</h1>
+                </div>
+                <div id="auth-status" class="flex items-center space-x-2">
+                    <span class="text-gray-300 hidden" id="welcome-message">Welcome, <span id="username-display"
+                            class="font-medium"></span></span>
+                    <button id="logout-btn"
+                        class="hidden bg-red-900 text-red-300 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-800 transition">Logout</button>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <label for="login-password" class="block text-sm font-medium mb-2">Password</label>
-                <div class="relative">
-                    <input type="password" id="login-password"
-                        class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="••••••••">
-                    <i class="fas fa-lock absolute right-3 top-3.5 text-gray-500"></i>
+            <!-- Main Content -->
+            <div class="p-6">
+                <!-- Authentication Section -->
+                <div id="auth-section">
+                    <!-- Tabs -->
+                    <div class="flex border-b border-gray-700 mb-6">
+                        <button class="tab py-2 px-4 text-gray-300 hover:text-indigo-400 transition tab-active"
+                            data-tab="login">Login</button>
+                        <button class="tab py-2 px-4 text-gray-300 hover:text-indigo-400 transition"
+                            data-tab="register">Register</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <div id="login-tab" class="tab-content">
+                        <form id="login-form" class="space-y-4">
+                            <div>
+                                <label for="login-email"
+                                    class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                                <input type="email" id="login-email" class="w-full px-4 py-3 rounded-lg input-field"
+                                    placeholder="your@email.com" required>
+                            </div>
+                            <div class="relative">
+                                <label for="login-password"
+                                    class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                                <input type="password" id="login-password"
+                                    class="w-full px-4 py-3 rounded-lg input-field" placeholder="••••••••" required>
+                                <span class="absolute right-3 bottom-3 text-gray-400 password-toggle"
+                                    id="toggle-login-password">
+                                    <i class="far fa-eye"></i>
+                                </span>
+                            </div>
+                            <button type="submit"
+                                class="w-full btn-primary text-white py-3 rounded-lg font-medium hover:opacity-90 transition">Login</button>
+                        </form>
+                    </div>
+
+                    <!-- Register Form -->
+                    <div id="register-tab" class="tab-content hidden">
+                        <form id="register-form" class="space-y-4">
+                            <div>
+                                <label for="register-name" class="block text-sm font-medium text-gray-300 mb-1">Full
+                                    Name</label>
+                                <input type="text" id="register-name" class="w-full px-4 py-3 rounded-lg input-field"
+                                    placeholder="John Doe" required>
+                            </div>
+                            <div>
+                                <label for="register-email"
+                                    class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                                <input type="email" id="register-email" class="w-full px-4 py-3 rounded-lg input-field"
+                                    placeholder="your@email.com" required>
+                            </div>
+                            <div class="relative">
+                                <label for="register-password"
+                                    class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                                <input type="password" id="register-password"
+                                    class="w-full px-4 py-3 rounded-lg input-field" placeholder="••••••••" required>
+                                <span class="absolute right-3 bottom-3 text-gray-400 password-toggle"
+                                    id="toggle-register-password">
+                                    <i class="far fa-eye"></i>
+                                </span>
+                            </div>
+                            <div class="relative">
+                                <label for="register-confirm-password"
+                                    class="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
+                                <input type="password" id="register-confirm-password"
+                                    class="w-full px-4 py-3 rounded-lg input-field" placeholder="••••••••" required>
+                                <span class="absolute right-3 bottom-3 text-gray-400 password-toggle"
+                                    id="toggle-register-confirm-password">
+                                    <i class="far fa-eye"></i>
+                                </span>
+                            </div>
+                            <button type="submit"
+                                class="w-full btn-primary text-white py-3 rounded-lg font-medium hover:opacity-90 transition">Register</button>
+                        </form>
+                    </div>
+                    </div>
+
+                <!-- Encryption Section (Shown after auth) -->
+                <div id="encryption-section" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-200">Secure Encryption Tools</h2>
+                        <button id="change-password-btn"
+                            class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center">
+                            <i class="fas fa-key mr-1"></i> Change Password
+                        </button>
+                    </div>
+
+                    <!-- Change Password Modal -->
+                    <div id="change-password-modal"
+                        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                        <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full border border-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-gray-200">Change Password</h3>
+                                <button id="close-change-password" class="text-gray-400 hover:text-gray-300">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <form id="change-password-form" class="space-y-4">
+                                <div class="relative">
+                                    <label for="current-password"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Current Password</label>
+                                    <input type="password" id="current-password"
+                                        class="w-full px-4 py-3 rounded-lg input-field" placeholder="••••••••" required>
+                                    <span class="absolute right-3 bottom-3 text-gray-400 password-toggle"
+                                        id="toggle-current-password">
+                                        <i class="far fa-eye"></i>
+                                    </span>
+                                </div>
+                                <div class="relative">
+                                    <label for="new-password" class="block text-sm font-medium text-gray-300 mb-1">New
+                                        Password</label>
+                                    <input type="password" id="new-password"
+                                        class="w-full px-4 py-3 rounded-lg input-field" placeholder="••••••••" required>
+                                    <span class="absolute right-3 bottom-3 text-gray-400 password-toggle"
+                                        id="toggle-new-password">
+                                        <i class="far fa-eye"></i>
+                                    </span>
+                                </div>
+                                <div class="relative">
+                                    <label for="confirm-new-password"
+                                        class="block text-sm font-medium text-gray-300 mb-1">Confirm New
+                                        Password</label>
+                                    <input type="password" id="confirm-new-password"
+                                        class="w-full px-4 py-3 rounded-lg input-field" placeholder="••••••••" required>
+                                    <span class="absolute right-3 bottom-3 text-gray-400 password-toggle"
+                                        id="toggle-confirm-new-password">
+                                        <i class="far fa-eye"></i>
+                                    </span>
+                                </div>
+                                <div class="flex justify-end space-x-3 pt-2">
+                                    <button type="button" id="cancel-change-password"
+                                        class="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700">Cancel</button>
+                                    <button type="submit"
+                                        class="btn-primary text-white px-4 py-2 rounded-lg hover:opacity-90">Update
+                                        Password</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Encryption Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Symmetric Encryption (AES) -->
+                        <div class="encryption-card p-6 rounded-xl border border-gray-700">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-indigo-900 p-2 rounded-full mr-3">
+                                    <i class="fas fa-lock text-indigo-400"></i>
+                                </div>
+                                <h3 class="font-bold text-gray-200">Symmetric Encryption (AES)</h3>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-1">Text to Encrypt</label>
+                                    <textarea id="aes-text" class="w-full px-4 py-3 rounded-lg input-field" rows="3"
+                                        placeholder="Enter text to encrypt"></textarea>
+                                </div>
+                                <div class="flex space-x-3">
+                                    <button id="aes-encrypt-btn"
+                                        class="flex-1 btn-primary text-white py-2 rounded-lg font-medium hover:opacity-90 transition">
+                                        <i class="fas fa-lock mr-2"></i> Encrypt
+                                    </button>
+                                    <button id="aes-decrypt-btn"
+                                        class="flex-1 bg-gray-700 text-gray-300 py-2 rounded-lg font-medium hover:bg-gray-600 transition">
+                                        <i class="fas fa-unlock mr-2"></i> Decrypt
+                                    </button>
+                                </div>
+                                <div id="aes-result-container" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-300 mb-1">Result</label>
+                                    <div class="relative">
+                                        <textarea id="aes-result"
+                                            class="w-full px-4 py-3 rounded-lg input-field bg-gray-800" rows="3"
+                                            readonly></textarea>
+                                        <button
+                                            class="copy-btn absolute right-2 bottom-2 bg-gray-700 p-2 rounded-lg text-gray-300 hover:bg-indigo-600">
+                                            <i class="far fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <div id="aes-key-container" class="mt-2">
+                                        <label class="block text-sm font-medium text-gray-300 mb-1">Encryption
+                                            Key</label>
+                                        <div class="relative">
+                                            <input type="text" id="aes-key"
+                                                class="w-full px-4 py-3 rounded-lg input-field bg-gray-800" readonly>
+                                            <button
+                                                class="copy-btn absolute right-2 bottom-2 bg-gray-700 p-2 rounded-lg text-gray-300 hover:bg-indigo-600">
+                                                <i class="far fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Asymmetric Encryption (RSA) -->
+                        <div class="encryption-card p-6 rounded-xl border border-gray-700">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-purple-900 p-2 rounded-full mr-3">
+                                    <i class="fas fa-key text-purple-400"></i>
+                                </div>
+                                <h3 class="font-bold text-gray-200">Asymmetric Encryption (RSA)</h3>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-1">Text to Encrypt</label>
+                                    <textarea id="rsa-text" class="w-full px-4 py-3 rounded-lg input-field" rows="3"
+                                        placeholder="Enter text to encrypt"></textarea>
+                                </div>
+                                <div class="flex space-x-3">
+                                    <button id="rsa-encrypt-btn"
+                                        class="flex-1 btn-primary text-white py-2 rounded-lg font-medium hover:opacity-90 transition">
+                                        <i class="fas fa-lock mr-2"></i> Encrypt
+                                    </button>
+                                    <button id="rsa-decrypt-btn"
+                                        class="flex-1 bg-gray-700 text-gray-300 py-2 rounded-lg font-medium hover:bg-gray-600 transition">
+                                        <i class="fas fa-unlock mr-2"></i> Decrypt
+                                    </button>
+                                </div>
+                                <div id="rsa-result-container" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-300 mb-1">Result</label>
+                                    <div class="relative">
+                                        <textarea id="rsa-result"
+                                            class="w-full px-4 py-3 rounded-lg input-field bg-gray-800" rows="3"
+                                            readonly></textarea>
+                                        <button
+                                            class="copy-btn absolute right-2 bottom-2 bg-gray-700 p-2 rounded-lg text-gray-300 hover:bg-indigo-600">
+                                            <i class="far fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-1">Public
+                                                Key</label>
+                                            <div class="relative">
+                                                <textarea id="rsa-public-key"
+                                                    class="w-full px-4 py-3 rounded-lg input-field bg-gray-800 text-xs"
+                                                    rows="2" readonly></textarea>
+                                                <button
+                                                    class="copy-btn absolute right-2 bottom-2 bg-gray-700 p-2 rounded-lg text-gray-300 hover:bg-indigo-600">
+                                                    <i class="far fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-1">Private
+                                                Key</label>
+                                            <div class="relative">
+                                                <textarea id="rsa-private-key"
+                                                    class="w-full px-4 py-3 rounded-lg input-field bg-gray-800 text-xs"
+                                                    rows="2" readonly></textarea>
+                                                <button
+                                                    class="copy-btn absolute right-2 bottom-2 bg-gray-700 p-2 rounded-lg text-gray-300 hover:bg-indigo-600">
+                                                    <i class="far fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Encryption History -->
+                    <div class="encryption-card p-6 rounded-xl border border-gray-700">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-900 p-2 rounded-full mr-3">
+                                <i class="fas fa-history text-blue-400"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-200">Encryption History</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-700">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Type</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Original Text</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Result</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Date</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-gray-800 divide-y divide-gray-700" id="history-table-body">
+                                    <!-- History items will be added here dynamically -->
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-400"
+                                            id="no-history-message">No encryption history yet</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center">
-                    <input type="checkbox" id="remember-me" class="rounded bg-gray-700 border-gray-600">
-                    <label for="remember-me" class="ml-2 text-sm">Remember me</label>
-                </div>
-                <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300">Forgot password?</a>
-            </div>
-
-            <button class="btn-primary w-full py-3 rounded-lg font-medium mb-4" onclick="handleLogin()">
-                Sign In
-            </button>
-
-            <div class="text-center text-sm text-gray-400">
-                Don't have an account?
-                <button onclick="toggleAuth()"
-                    class="toggle-auth text-indigo-400 hover:text-indigo-300 ml-1 font-medium relative">
-                    Sign up
-                </button>
-            </div>
-        </div>
-
-        <!-- Signup Form (Hidden by default) -->
-        <div id="signup-form" class="hidden">
-            <div class="mb-6">
-                <label for="signup-name" class="block text-sm font-medium mb-2">User Name</label>
-                <div class="relative">
-                    <input type="text" id="signup-name"
-                        class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="ahmed">
-                    <i class="fas fa-user absolute right-3 top-3.5 text-gray-500"></i>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <label for="signup-email" class="block text-sm font-medium mb-2">Email</label>
-                <div class="relative">
-                    <input type="email" id="signup-email"
-                        class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="your@email.com">
-                    <i class="fas fa-envelope absolute right-3 top-3.5 text-gray-500"></i>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <label for="signup-password" class="block text-sm font-medium mb-2">Password</label>
-                <div class="relative">
-                    <input type="password" id="signup-password"
-                        class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="••••••••">
-                    <i class="fas fa-lock absolute right-3 top-3.5 text-gray-500"></i>
-                </div>
-                <p class="text-xs text-gray-500 mt-1">At least 8 characters with numbers and symbols</p>
-            </div>
-
-            <div class="mb-6">
-                <label for="signup-confirm" class="block text-sm font-medium mb-2">Confirm Password</label>
-                <div class="relative">
-                    <input type="password" id="signup-confirm"
-                        class="input-field w-full px-4 py-3 rounded-lg focus:outline-none" placeholder="••••••••">
-                    <i class="fas fa-lock absolute right-3 top-3.5 text-gray-500"></i>
-                </div>
-            </div>
-
-            <div class="flex items-center mb-6">
-                <input type="checkbox" id="terms" class="rounded bg-gray-700 border-gray-600">
-                <label for="terms" class="ml-2 text-sm">
-                    I agree to the <a href="#" class="text-indigo-400 hover:text-indigo-300">Terms</a> and <a href="#"
-                        class="text-indigo-400 hover:text-indigo-300">Privacy Policy</a>
-                </label>
-            </div>
-
-            <button class="btn-primary w-full py-3 rounded-lg font-medium mb-4" onclick="handleSignup()">
-                Create Account
-            </button>
-
-            <div class="text-center text-sm text-gray-400">
-                Already have an account?
-                <button onclick="toggleAuth()"
-                    class="toggle-auth text-indigo-400 hover:text-indigo-300 ml-1 font-medium relative">
-                    Sign in
-                </button>
-            </div>
-        </div>
     </div>
-    </div>
-
+        <!-- Toast Notification -->
+        <div id="toast"
+            class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg flex items-center border border-gray-700 hidden">
+            <span id="toast-message" class="text-sm"></span>
+            <button id="close-toast" class="ml-4 text-gray-400 hover:text-gray-300">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     <script src="script.js"></script>
+
 </body>
 
 </html>
