@@ -434,28 +434,28 @@ function encryptWithAES() {
 // Decrypt text with AES
 function decryptWithAES() {
     const encryptedText = aesText.value.trim();
-    const key = prompt('Enter the encryption key:');
-    
+    const key = aesKey.value.trim();
+
     if (!encryptedText || !key) {
         showToast('Please enter encrypted text and key!', true);
         return;
     }
-    
+
     try {
         // Extract IV (first 32 hex chars)
         const iv = CryptoJS.enc.Hex.parse(encryptedText.substring(0, 32));
-        
+
         // Extract ciphertext (rest)
         const ciphertext = encryptedText.substring(32);
-        
+
         // Decrypt
         const decrypted = CryptoJS.AES.decrypt(ciphertext, CryptoJS.enc.Hex.parse(key), { iv: iv });
-        
+
         // Display result
         aesResult.value = decrypted.toString(CryptoJS.enc.Utf8);
         aesResultContainer.classList.remove('hidden');
         aesKeyContainer.classList.add('hidden');
-        
+
         // Save to history
         addToHistory('AES Decrypt', encryptedText, decrypted.toString(CryptoJS.enc.Utf8));
 
@@ -472,7 +472,6 @@ function decryptWithAES() {
         console.error(error);
     }
 }
-
 // Encrypt text with RSA
 function encryptWithRSA() {
     const text = rsaText.value.trim();
