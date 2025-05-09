@@ -1,4 +1,3 @@
-
 // DOM Elements
 const authSection = document.getElementById('auth-section');
 const encryptionSection = document.getElementById('encryption-section');
@@ -188,7 +187,7 @@ function init() {
 
     // Set up event listeners
     setupEventListeners();
-    
+
     // Create particles
     createParticles();
 }
@@ -197,30 +196,30 @@ function init() {
 function createParticles() {
     const particlesContainer = document.getElementById('particles');
     const particleCount = 20;
-    
+
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.classList.add('particle');
-        
+
         // Random size between 1px and 3px
         const size = Math.random() * 2 + 1;
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
-        
+
         // Random position
         particle.style.left = `${Math.random() * 100}%`;
         particle.style.top = `${Math.random() * 100}%`;
-        
+
         // Random opacity
         particle.style.opacity = Math.random() * 0.5;
-        
+
         // Random animation
         const duration = Math.random() * 20 + 10;
         particle.style.animation = `float ${duration}s linear infinite`;
-        
+
         particlesContainer.appendChild(particle);
     }
-    
+
     // Add animation keyframes
     const style = document.createElement('style');
     style.innerHTML = `
@@ -249,25 +248,6 @@ function setupEventListeners() {
         });
     });
 
-    // Password visibility toggles
-    passwordToggles.forEach(toggle => {
-        toggle.addEventListener('click', function() {
-            const inputId = this.id.replace('toggle-', '');
-            const input = document.getElementById(inputId);
-            const icon = this.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-    });
-
     // Form submissions
     loginForm.addEventListener('submit', handleLogin);
     registerForm.addEventListener('submit', handleRegister);
@@ -281,7 +261,7 @@ function setupEventListeners() {
 
     // Copy buttons
     document.querySelectorAll('.copy-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const container = this.closest('.relative');
             const input = container.querySelector('input, textarea');
             navigator.clipboard.writeText(input.value)
@@ -326,7 +306,7 @@ function showToast(message, isError = false) {
     toastMessage.textContent = message;
     toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg flex items-center border border-gray-700 ${isError ? 'bg-red-900' : 'bg-gray-800'} text-white`;
     toast.classList.remove('hidden');
-    
+
     // Auto-hide after 3 seconds
     setTimeout(() => {
         toast.classList.add('hidden');
@@ -340,80 +320,80 @@ function hashPassword(password) {
 
 // Handle user registration
 function handleRegister(e) {
-e.preventDefault();
+    e.preventDefault();
 
-const name = document.getElementById('register-name').value;
-const email = document.getElementById('register-email').value;
-const password = document.getElementById('register-password').value;
-const confirmPassword = document.getElementById('register-confirm-password').value;
+    const name = document.getElementById('register-name').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-confirm-password').value;
 
-// Validate inputs
-if (password !== confirmPassword) {
- showToast('Passwords do not match!', true);
- return;
-}
+    // Validate inputs
+    if (password !== confirmPassword) {
+        showToast('Passwords do not match!', true);
+        return;
+    }
 
-// Check if user already exists
-if (users.some(user => user.email === email)) {
- showToast('User with this email already exists!', true);
- return;
-}
+    // Check if user already exists
+    if (users.some(user => user.email === email)) {
+        showToast('User with this email already exists!', true);
+        return;
+    }
 
-// Create new user
-const newUser = {
-    id: Date.now().toString(),
-    name,
-    email,
-    password: hashPassword(password),
-    createdAt: new Date().toISOString(),
-    encryptionHistory: [], // Initialize an empty encryption history
-    decryptionHistory: [], // Initialize an empty encryption history
-    privateKey: rsaKeys.privateKey // Assign the generated private key
-};
+    // Create new user
+    const newUser = {
+        id: Date.now().toString(),
+        name,
+        email,
+        password: hashPassword(password),
+        createdAt: new Date().toISOString(),
+        encryptionHistory: [], // Initialize an empty encryption history
+        decryptionHistory: [], // Initialize an empty encryption history
+        privateKey: rsaKeys.privateKey // Assign the generated private key
+    };
 
-// Save user
-users.push(newUser);
-localStorage.setItem('users', JSON.stringify(users));
+    // Save user
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
 
-// Clear form
-registerForm.reset();
+    // Clear form
+    registerForm.reset();
 
-// Switch to login tab
-switchTab('login');
-showToast('Registration successful! Please login.');
+    // Switch to login tab
+    switchTab('login');
+    showToast('Registration successful! Please login.');
 }
 
 // Handle user login
 function handleLogin(e) {
     e.preventDefault();
-    
+
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
-    
+
     // Update users array from localStorage
     users = JSON.parse(localStorage.getItem('users')) || [];
-    
+
     // Find user
     const user = users.find(user => user.email === email);
-    
+
     if (!user) {
         showToast('User not found!', true);
         return;
     }
-    
+
     // Verify password
     if (user.password !== hashPassword(password)) {
         showToast('Invalid password!', true);
         return;
     }
-    
+
     // Login successful
     currentUser = user;
     localStorage.setItem('currentUser', JSON.stringify(user));
-    
+
     // Clear form
     loginForm.reset();
-    
+
     // Show encryption section
     showEncryptionSection(currentUser.name);
     showToast(`Welcome back, ${user.name}!`);
@@ -423,36 +403,36 @@ function handleLogin(e) {
 // Handle password change
 function handleChangePassword(e) {
     e.preventDefault();
-    
+
     const currentPassword = document.getElementById('current-password').value;
     const newPassword = document.getElementById('new-password').value;
     const confirmNewPassword = document.getElementById('confirm-new-password').value;
-    
+
     // Validate inputs
     if (newPassword !== confirmNewPassword) {
         showToast('New passwords do not match!', true);
         return;
     }
-    
+
     // Verify current password
     if (currentUser.password !== hashPassword(currentPassword)) {
         showToast('Current password is incorrect!', true);
         return;
     }
-    
+
     // Update password
     const userIndex = users.findIndex(user => user.id === currentUser.id);
     users[userIndex].password = hashPassword(newPassword);
     currentUser.password = hashPassword(newPassword);
-    
+
     // Save updates
     localStorage.setItem('users', JSON.stringify(users));
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    
+
     // Clear form and close modal
     changePasswordForm.reset();
     changePasswordModal.classList.add('hidden');
-    
+
     showToast('Password changed successfully!');
 }
 
@@ -485,10 +465,10 @@ function showEncryptionSection(username) {
 
 // Generate RSA key pair
 function generateRSAKeys() {
-    const crypt = new JSEncrypt({default_key_size: 2048});
+    const crypt = new JSEncrypt({ default_key_size: 2048 });
     rsaKeys.publicKey = crypt.getPublicKey();
     rsaKeys.privateKey = crypt.getPrivateKey();
-    
+
     // Display keys
     rsaPublicKey.value = rsaKeys.publicKey;
     rsaPrivateKey.value = rsaKeys.privateKey;
@@ -497,28 +477,28 @@ function generateRSAKeys() {
 // Encrypt text with AES
 function encryptWithAES() {
     const text = aesText.value.trim();
-    
+
     if (!text) {
         showToast('Please enter text to encrypt!', true);
         return;
     }
-    
+
     // Generate a random key and IV
     const key = CryptoJS.lib.WordArray.random(32); // 256 bits
     const iv = CryptoJS.lib.WordArray.random(16); // 128 bits
-    
+
     // Encrypt
     const encrypted = CryptoJS.AES.encrypt(text, key, { iv: iv });
-    
+
     // Combine IV and ciphertext
     const result = iv.toString() + encrypted.toString();
-    
+
     // Display results
     aesResult.value = result;
     aesKey.value = key.toString();
     aesResultContainer.classList.remove('hidden');
     aesKeyContainer.classList.remove('hidden');
-    
+
     // Save to history
     addToHistory('AES', text, result, key.toString());
 
@@ -576,25 +556,25 @@ function decryptWithAES() {
 // Encrypt text with RSA
 function encryptWithRSA() {
     const text = rsaText.value.trim();
-    
+
     if (!text) {
         showToast('Please enter text to encrypt!', true);
         return;
     }
-    
+
     const crypt = new JSEncrypt();
     crypt.setPublicKey(rsaKeys.publicKey);
     const encrypted = crypt.encrypt(text);
-    
+
     if (!encrypted) {
         showToast('Encryption failed! Text might be too long.', true);
         return;
     }
-    
+
     // Display results
     rsaResult.value = encrypted;
     rsaResultContainer.classList.remove('hidden');
-    
+
     // Save to history
     addToHistory('RSA', text, encrypted);
 
@@ -611,25 +591,25 @@ function encryptWithRSA() {
 // Decrypt text with RSA
 function decryptWithRSA() {
     const encryptedText = rsaText.value.trim();
-    
+
     if (!encryptedText) {
         showToast('Please enter text to decrypt!', true);
         return;
     }
-    
+
     const crypt = new JSEncrypt();
     crypt.setPrivateKey(rsaKeys.privateKey);
     const decrypted = crypt.decrypt(encryptedText);
-    
+
     if (!decrypted) {
         showToast('Decryption failed! Invalid text or key.', true);
         return;
     }
-    
+
     // Display result
     rsaResult.value = decrypted;
     rsaResultContainer.classList.remove('hidden');
-    
+
     // Save to history
     addToHistory('RSA Decrypt', encryptedText, decrypted);
 
@@ -646,7 +626,7 @@ function decryptWithRSA() {
 // Add operation to history
 function addToHistory(type, original, result, key = '') {
     if (!currentUser) return;
-    
+
     const entry = {
         id: Date.now().toString(),
         userId: currentUser.id,
@@ -656,10 +636,10 @@ function addToHistory(type, original, result, key = '') {
         key,
         date: new Date().toISOString()
     };
-    
+
     encryptionHistory.unshift(entry);
     localStorage.setItem('encryptionHistory', JSON.stringify(encryptionHistory));
-    
+
     // Update user's encryption or decryption history
     const userIndex = users.findIndex(user => user.id === currentUser.id);
     if (userIndex !== -1) {
@@ -670,7 +650,7 @@ function addToHistory(type, original, result, key = '') {
         }
         localStorage.setItem('users', JSON.stringify(users));
     }
-    
+
     // Update UI
     loadEncryptionHistory();
 }
@@ -678,30 +658,30 @@ function addToHistory(type, original, result, key = '') {
 // Load encryption history for current user
 function loadEncryptionHistory() {
     if (!currentUser) return;
-    
+
     const userHistory = encryptionHistory.filter(entry => entry.userId === currentUser.id);
-    
+
     if (userHistory.length === 0) {
         noHistoryMessage.classList.remove('hidden');
         return;
     }
-    
+
     noHistoryMessage.classList.add('hidden');
     historyTableBody.innerHTML = '';
-    
+
     userHistory.forEach(entry => {
         const tr = document.createElement('tr');
-        
+
         // Format date
         const date = new Date(entry.date);
         const formattedDate = date.toLocaleString();
-        
+
         // Shorten long texts for display
-        const displayOriginal = entry.original.length > 30 ? 
+        const displayOriginal = entry.original.length > 30 ?
             entry.original.substring(0, 30) + '...' : entry.original;
-        const displayResult = entry.result.length > 30 ? 
+        const displayResult = entry.result.length > 30 ?
             entry.result.substring(0, 30) + '...' : entry.result;
-        
+
         tr.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-200">${entry.type}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400" title="${entry.original}">${displayOriginal}</td>
@@ -711,13 +691,13 @@ function loadEncryptionHistory() {
                 <button class="text-indigo-400 hover:text-indigo-300 view-entry" data-id="${entry.id}">View</button>
             </td>
         `;
-        
+
         historyTableBody.appendChild(tr);
     });
-    
+
     // Add event listeners to view buttons
     document.querySelectorAll('.view-entry').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const entryId = this.getAttribute('data-id');
             viewHistoryEntry(entryId);
         });
@@ -728,11 +708,11 @@ function loadEncryptionHistory() {
 function viewHistoryEntry(entryId) {
     const entry = encryptionHistory.find(e => e.id === entryId);
     if (!entry) return;
-    
+
     // Create a modal to display the full entry
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    
+
     modal.innerHTML = `
         <div class="bg-gray-800 rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-700">
             <div class="flex justify-between items-center mb-4">
@@ -767,9 +747,9 @@ function viewHistoryEntry(entryId) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
     // Close modal when clicking the close button
     modal.querySelector('.close-modal').addEventListener('click', () => {
         document.body.removeChild(modal);
