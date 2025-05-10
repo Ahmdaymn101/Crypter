@@ -43,7 +43,6 @@ const noHistoryMessage = document.getElementById('no-history-message');
 // Application state
 let currentUser = null;
 let users = JSON.parse(localStorage.getItem('users')) || [];
-let encryptionHistory = JSON.parse(localStorage.getItem('encryptionHistory')) || [];
 let rsaKeys = {
     publicKey: '',
     privateKey: ''
